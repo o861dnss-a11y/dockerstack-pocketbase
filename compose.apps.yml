@@ -27,7 +27,10 @@ services:
       context: ./services/app
       dockerfile: Dockerfile
       args:
-        PB_VERSION: "${PB_VERSION:-0.28.2}"
+        PB_VERSION: "${PB_VERSION:-0.37.1}"
+    # Compose vẫn ưu tiên giá trị khai báo explicit trong environment bên dưới.
+    env_file:
+      - ./.env
     environment:
       # ── PocketBase runtime ──────────────────────────────────────
       DATA_DIR: "/pb/pb_data"
