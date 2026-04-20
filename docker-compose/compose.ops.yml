@@ -25,7 +25,8 @@ services:
   # ── Dozzle: real-time container logs ──────────────────────────
   dozzle:
     profiles: [dozzle]
-    image: amir20/dozzle:latest
+    image: amir20/dozzle:v10.3.3
+    pull_policy: missing
     volumes:
       - ${DOCKER_SOCK:-/var/run/docker.sock}:/var/run/docker.sock:ro
     environment:
@@ -44,6 +45,7 @@ services:
   filebrowser:
     profiles: [filebrowser]
     image: filebrowser/filebrowser:v2.30.0
+    pull_policy: missing
     command: --noauth --port 80 --root /srv --database /database/filebrowser.db
     ports:
       - "${OPS_HOST_BIND_IP:-127.0.0.1}:${FILEBROWSER_HOST_PORT:-18081}:80"
@@ -63,7 +65,10 @@ services:
   # ── WebSSH (Linux): ttyd container → SSH into host runner ──────
   webssh:
     profiles: [webssh-linux]
-    build: ./services/webssh
+    image: ${WEBSSH_IMAGE:-dockerstack-webssh:local}
+    build:
+      context: ./services/webssh
+      pull: false
     command:
       - "ttyd"
       - "-W"
@@ -96,7 +101,8 @@ services:
   # ── WebSSH (Windows): socat bridge → host ttyd process ─────────
   webssh-windows:
     profiles: [webssh-windows]
-    image: alpine/socat:latest
+    image: alpine/socat:1.8.0.3
+    pull_policy: missing
     command: >
       TCP-LISTEN:7681,fork,reuseaddr
       TCP:host.docker.internal:7681
