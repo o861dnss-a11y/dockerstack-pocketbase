@@ -1,0 +1,39 @@
+# ================================================================
+#  /etc/litestream.yml — Litestream Replication Config (PocketBase)
+#
+#  Biến bắt buộc:
+#    LITESTREAM_S3_ENDPOINT          — vd: https://<id>.supabase.co/storage/v1/s3
+#                                          hoặc https://s3.amazonaws.com
+#    LITESTREAM_S3_BUCKET            — tên bucket
+#    LITESTREAM_S3_PATH              — prefix path trong bucket
+#                                          (mặc định: pocketbase/data.db)
+#    LITESTREAM_S3_ACCESS_KEY_ID     — S3 / Supabase access key
+#    LITESTREAM_S3_SECRET_ACCESS_KEY — S3 / Supabase secret key
+#
+#  PocketBase dùng WAL mode mặc định → tương thích hoàn toàn
+#  với Litestream (không cần cấu hình thêm).
+#
+#  Lưu ý: chỉ replicate data.db (main database).
+#  logs.db được PocketBase tự xoay vòng, không cần backup liên tục.
+# ================================================================
+
+dbs:
+  - path: /pb/pb_data/data.db
+    replicas:
+      - type: s3
+        endpoint: ${LITESTREAM_S3_ENDPOINT}
+        bucket: ${LITESTREAM_S3_BUCKET}
+        path: ${LITESTREAM_S3_PATH}
+        access-key-id: ${LITESTREAM_S3_ACCESS_KEY_ID}
+        secret-access-key: ${LITESTREAM_S3_SECRET_ACCESS_KEY}
+
+        # Upload WAL frames lên S3 mỗi 5s
+        # → mất tối đa 5s data nếu SIGKILL không có grace period
+        sync-interval: 5s
+
+        # Tạo full snapshot mỗi 1h → restore nhanh hơn
+        snapshot-interval: 1h
+
+        # Giữ 48h generations → tự dọn phiên bản cũ hơn
+        retention: 48h
+        retention-check-interval: 1h
