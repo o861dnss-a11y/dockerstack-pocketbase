@@ -1,6 +1,10 @@
 tunnel: 9e8df9ca-16a1-4d09-8288-3d1ea9031ac3
 credentials-file: /etc/cloudflared/credentials.json
-
+originRequest:
+  keepAliveTimeout: 300s # giữ idle connection 5 phút
+  keepAliveConnections: 100
+  connectTimeout: 30s
+  tcpKeepAlive: 30s
 ingress:
   - hostname: dockerstackpocketbase.dpdns.org
     service: http://caddy:80
