@@ -36,6 +36,9 @@ services:
     labels:
       - "caddy=http://logs.${PROJECT_NAME}.${DOMAIN}, http://logs.${DOMAIN}, http://dozzle.${DOMAIN}"
       - "caddy.reverse_proxy={{upstreams 8080}}"
+      # Lỗi aborting with incomplete response với SSE (text/event-stream) qua Caddy reverse proxy
+      #   — cần thêm flush_interval -1 để Caddy không buffer response mà stream thẳng về client.
+      - "caddy.reverse_proxy.flush_interval=-1" # ← thêm dòng này
       - "caddy.basic_auth=/*"
       - "caddy.basic_auth.${CADDY_AUTH_USER:-admin}=${CADDY_AUTH_HASH}"
     networks: [app_net]
